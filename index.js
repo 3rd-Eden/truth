@@ -22,7 +22,6 @@ function Truth() {
 //
 Truth.prototype = new EventEmitter();
 Truth.prototype.constructor = Truth;
-Truth.prototype.emits = require('emits');
 
 /**
  * Merge in the data from another given truth data source.

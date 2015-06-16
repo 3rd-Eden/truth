@@ -16,7 +16,6 @@
   "author": "Arnout Kazemier",
   "license": "MIT",
   "dependencies": {
-    "emits": "3.0.x",
     "eventemitter3": "1.1.x",
     "ultron": "1.0.x"
   },
