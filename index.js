@@ -88,7 +88,7 @@ Truth.prototype.find = function find(key, value) {
  * Data has changed. Process changes.
  *
  * @returns {Truth}
- * @api private
+ * @api public
  */
 Truth.prototype.change = function change() {
   var rows = this.rows.slice(0)
@@ -172,8 +172,9 @@ Truth.prototype.remove = function remove() {
 /**
  * Additional data transformation methods.
  *
+ * @param {String} method API method we should use
  * @param {Function} fn Method that does the modification.
- * @param {Boolean} override Override all exiting
+ * @param {String} name Name of the transform.
  * @returns {Truth}
  * @api public
  */
