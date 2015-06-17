@@ -56,7 +56,7 @@ Truth.prototype.merge = function merge(truth, key) {
 };
 
 /**
- * Check if a certain key/value.
+ * Check if a certain key/value exists in our data set.
  *
  * @param {String} key The key or property of the object we should check for
  * @param {Mixed} value Value of the key.
@@ -64,14 +64,24 @@ Truth.prototype.merge = function merge(truth, key) {
  * @api public
  */
 Truth.prototype.has = function has(key, value) {
+  return !!this.find.apply(this, arguments);
+};
+
+/**
+ * Find a row for a given key/value pair.
+ *
+ * @param {String} key The key or property of the object we should check for
+ * @param {Mixed} value Value of the key.
+ * @returns {Object} the found row.
+ * @api public
+ */
+Truth.prototype.find = function find(key, value) {
   for (var i = 0; i < this.rows.length; i++) {
     if (key in this.rows[i]) {
       if (arguments.length === 2 && this.rows[i][key] !== value) continue;
-      return true;
+      return this.rows[i];
     }
   }
-
-  return false;
 };
 
 /**
