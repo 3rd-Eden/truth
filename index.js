@@ -1,6 +1,7 @@
 'use strict';
 
 var EventEmitter = require('eventemitter3')
+  , slice = Array.prototype.slice
   , Ultron = require('ultron');
 
 /**
@@ -133,17 +134,19 @@ Truth.prototype.change = function change() {
  * @api public
  */
 Truth.prototype.add = function add() {
-  var changes = 0;
+  var changes = []
+    , self = this;
 
-  Array.prototype.slice.call(arguments).forEach(function each(row) {
-    if (~this.rows.indexOf(row)) return;
+  slice.call(arguments).forEach(function each(row) {
+    if (~self.rows.indexOf(row)) return;
 
-    this.rows.push(row);
-    changes++;
-  }, this);
+    self.rows.push(row);
+    changes.push(row);
+  });
 
-  if (changes) this.change();
-  return this;
+  if (changes.length) self.change(changes);
+
+  return self;
 };
 
 /**
@@ -154,19 +157,21 @@ Truth.prototype.add = function add() {
  * @api public
  */
 Truth.prototype.remove = function remove() {
-  var changes = 0;
+  var changes = []
+    , self = this;
 
-  Array.prototype.slice.call(arguments).forEach(function each(row) {
-    var index = this.rows.indexOf(row);
+  slice.call(arguments).forEach(function each(row) {
+    var index = self.rows.indexOf(row);
 
     if (~index) {
-      this.rows.splice(index, 1);
-      changes++;
+      self.rows.splice(index, 1);
+      changes.push(row);
     }
-  }, this);
+  });
 
-  if (changes) this.change();
-  return this;
+  if (changes.length) self.change(undefined, changes);
+
+  return self;
 };
 
 /**
