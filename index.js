@@ -2,6 +2,7 @@
 
 var EventEmitter = require('eventemitter3')
   , slice = Array.prototype.slice
+  , propget = require('propget')
   , Ultron = require('ultron');
 
 /**
@@ -79,7 +80,7 @@ Truth.prototype.has = function has(key, value) {
 Truth.prototype.find = function find(key, value) {
   for (var i = 0; i < this.rows.length; i++) {
     if (key in this.rows[i]) {
-      if (arguments.length === 2 && this.rows[i][key] !== value) continue;
+      if (arguments.length === 2 && propget(this.rows[i], key) !== value) continue;
       return this.rows[i];
     }
   }
