@@ -78,9 +78,11 @@ Truth.prototype.has = function has(key, value) {
  * @api public
  */
 Truth.prototype.find = function find(key, value) {
-  for (var i = 0; i < this.rows.length; i++) {
-    if (key in this.rows[i]) {
-      if (arguments.length === 2 && propget(this.rows[i], key) !== value) continue;
+  for (var i = 0, match; i < this.rows.length; i++) {
+    match = propget(this.rows[i], key);
+
+    if (match) {
+      if (arguments.length === 2 && match !== value) continue;
       return this.rows[i];
     }
   }
