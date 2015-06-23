@@ -84,6 +84,66 @@ describe('truth', function () {
       assume(truth.get().length).equals(1);
       assume(truth.get()).deep.equals([values[1]]);
     });
+
+    it('can remove completely transformed data structures', function () {
+      var values = [{ foo: 'bar' }, { foo: 'foo'}];
+
+      truth.transform('map', function (row) {
+        return {
+          value: row
+        };
+      });
+
+      truth.add.apply(truth, values);
+      assume(truth.get()).deep.equals([
+        { value: { foo: 'bar' } },
+        { value: { foo: 'foo' } }
+      ]);
+
+      var row = truth.find('value.foo', 'bar');
+
+      assume(row).is.a('object');
+      assume(truth.get()).has.length(2);
+
+      truth.remove(row);
+      assume(truth.get()).has.length(1);
+      assume(truth.get()).deep.equals([{ value: { foo: 'foo' }}]);
+    });
+  });
+
+  describe('#find', function () {
+    it('finds transformed rows', function () {
+      var values = [{ foo: 'bar' }, { foo: 'foo'}];
+
+      truth.add.apply(truth, values);
+
+      var row = truth.find('foo', 'bar');
+
+      assume(row).is.a('object');
+      assume(row.foo).equals('bar');
+      assume(row[truth.original]).equals(values[0]);
+    });
+
+    it('finds transformed rows', function () {
+      var values = [{ foo: 'bar' }, { foo: 'foo'}];
+
+      truth.transform('map', function (row) {
+        return {
+          value: row
+        };
+      });
+
+      truth.add.apply(truth, values);
+      assume(truth.get()).deep.equals([
+        { value: { foo: 'bar' } },
+        { value: { foo: 'foo' } }
+      ]);
+
+      var row = truth.find('value.foo', 'bar');
+
+      assume(row).is.a('object');
+      assume(row.value.foo).equals('bar');
+    });
   });
 
   describe('#merge', function () {

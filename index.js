@@ -22,7 +22,7 @@ var id = 0;
 function Truth() {
   if (!(this instanceof Truth)) return new Truth();
 
-  this.id = '_____truthrowref'+ id++;
+  this.original = '_truth' + (id++);
   this.events = new Ultron(this);
   this.transforms = [];
   this.following = [];
@@ -45,27 +45,29 @@ Truth.prototype.constructor = Truth;
  * @api public
  */
 Truth.prototype.merge = function merge(truth, key) {
-  var ultron = new Ultron(truth);
+  var ultron = new Ultron(truth)
+    , self = this;
 
-  ultron.on('change', this.change.bind(this));
+  ultron.on('change', self.change.bind(self));
   ultron.once('destroy', function destroy() {
-    var i = this.following.length;
+    var i = self.following.length;
 
     while (i--) {
-      if (this.following[i].ultron === ultron) break;
+      if (self.following[i].ultron === ultron) break;
     }
 
     if (!i) return false;
 
-    this.following.splice(i, 1);
+    self.following.splice(i, 1);
     ultron.destroy();
-    this.change();
-  }, this);
 
-  this.following.push({ key: key, ulton: ultron, truth: truth });
-  this.change();
+    self.change();
+  }, self);
 
-  return this;
+  self.following.push({ key: key, ulton: ultron, truth: truth });
+  self.change();
+
+  return self;
 };
 
 /**
@@ -89,12 +91,12 @@ Truth.prototype.has = function has(key, value) {
  * @api public
  */
 Truth.prototype.find = function find(key, value) {
-  for (var i = 0, match; i < this.rows.length; i++) {
-    match = propget(this.rows[i], key);
+  for (var i = 0, match; i < this.data.length; i++) {
+    match = propget(this.data[i], key);
 
     if (match) {
       if (arguments.length === 2 && match !== value) continue;
-      return this.rows[i];
+      return this.data[i];
     }
   }
 };
@@ -116,7 +118,7 @@ Truth.prototype.change = function change() {
   // Make sure we have our unique row id assigned
   //
   for (i = 0; i < rows.length; i++) {
-    Object.defineProperty(rows[i], this.id, {
+    Object.defineProperty(rows[i], this.original, {
       configurable: true,
       writable: true,
       value: rows[i]
@@ -153,8 +155,8 @@ Truth.prototype.change = function change() {
         data = rows[j];
 
         rows[j] = transform.fn(rows[j], j, rows);
-        Object.defineProperty(rows[j], this.id, {
-          value: data[this.id],
+        Object.defineProperty(rows[j], this.original, {
+          value: data[this.original],
           configurable: true,
           writable: true,
         });
@@ -209,12 +211,12 @@ Truth.prototype.remove = function remove() {
     , self = this;
 
   slice.call(arguments).forEach(function each(row) {
-    var index = self.rows.indexOf(row[self.id] || row);
+    var index = self.rows.indexOf(row[self.original] || row);
 
     if (!~index) return;
 
-    delete self.data[index][self.id];
-    delete row[self.id];
+    delete self.data[index][self.original];
+    delete row[self.original];
 
     self.rows.splice(index, 1);
     changes.push(row);
