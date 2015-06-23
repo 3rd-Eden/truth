@@ -6,12 +6,23 @@ var EventEmitter = require('eventemitter3')
   , Ultron = require('ultron');
 
 /**
+ * Internal unique id for generating row properties.
+ *
+ * @type {Number}
+ * @private
+ */
+var id = 0;
+
+/**
  * A single source of truth.
  *
  * @constructor
  * @api private
  */
 function Truth() {
+  if (!(this instanceof Truth)) return new Truth();
+
+  this.id = '_____truthrowref'+ id++;
   this.events = new Ultron(this);
   this.transforms = [];
   this.following = [];
@@ -102,6 +113,17 @@ Truth.prototype.change = function change() {
     , i;
 
   //
+  // Make sure we have our unique row id assigned
+  //
+  for (i = 0; i < rows.length; i++) {
+    Object.defineProperty(rows[i], this.id, {
+      configurable: true,
+      writable: true,
+      value: rows[i]
+    });
+  }
+
+  //
   // Merge all additional data structures so we can generate once big source of
   // truth for this given instance.
   //
@@ -120,7 +142,26 @@ Truth.prototype.change = function change() {
   //
   for (i = 0; i < this.transforms.length; i++) {
     transform = this.transforms[i];
-    rows = rows[transform.method](transform.fn);
+
+    //
+    // Make sure we copy back our hidden row to the mapped result so we need to
+    // implement a custom mapper in order to maintain the correct data
+    // references.
+    //
+    if (transform.method === 'map') {
+      for (j = 0; j < rows.length; j++) {
+        data = rows[j];
+
+        rows[j] = transform.fn(rows[j], j, rows);
+        Object.defineProperty(rows[j], this.id, {
+          value: data[this.id],
+          configurable: true,
+          writable: true,
+        });
+      }
+    } else {
+      rows = rows[transform.method](transform.fn);
+    }
   }
 
   this.data = rows;
@@ -141,7 +182,11 @@ Truth.prototype.add = function add() {
     , self = this;
 
   slice.call(arguments).forEach(function each(row) {
-    if (~self.rows.indexOf(row)) return;
+    if (
+         !row
+      || 'object' !== typeof row
+      || ~self.rows.indexOf(row)
+    ) return;
 
     self.rows.push(row);
     changes.push(row);
@@ -164,12 +209,15 @@ Truth.prototype.remove = function remove() {
     , self = this;
 
   slice.call(arguments).forEach(function each(row) {
-    var index = self.rows.indexOf(row);
+    var index = self.rows.indexOf(row[self.id] || row);
 
-    if (~index) {
-      self.rows.splice(index, 1);
-      changes.push(row);
-    }
+    if (!~index) return;
+
+    delete self.data[index][self.id];
+    delete row[self.id];
+
+    self.rows.splice(index, 1);
+    changes.push(row);
   });
 
   if (changes.length) self.change(undefined, changes);

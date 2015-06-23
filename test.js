@@ -167,7 +167,9 @@ describe('truth', function () {
         next();
       });
 
-      truth.transform('map', function () {});
+      truth.transform('map', function () {
+        return {};
+      });
     });
   });
 
