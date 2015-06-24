@@ -131,7 +131,7 @@ Truth.prototype.change = function change() {
   //
   for (i = 0; i < this.following.length; i++) {
     transform = this.following[i];
-    data = transform.truth.get();
+    data = this.apply('before', transform.truth.get());
 
     for (j = 0; j < data.length; j++) {
       if (this.has(transform.key, data[j][transform.key])) continue;
@@ -139,34 +139,8 @@ Truth.prototype.change = function change() {
     }
   }
 
-  //
-  // Apply all the data transformations.
-  //
-  for (i = 0; i < this.transforms.length; i++) {
-    transform = this.transforms[i];
 
-    //
-    // Make sure we copy back our hidden row to the mapped result so we need to
-    // implement a custom mapper in order to maintain the correct data
-    // references.
-    //
-    if (transform.method === 'map') {
-      for (j = 0; j < rows.length; j++) {
-        data = rows[j];
-
-        rows[j] = transform.fn(rows[j], j, rows);
-        Object.defineProperty(rows[j], this.original, {
-          value: data[this.original],
-          configurable: true,
-          writable: true,
-        });
-      }
-    } else {
-      rows = rows[transform.method](transform.fn);
-    }
-  }
-
-  this.data = rows;
+  this.data = this.apply('transform', rows);
   this.emit('change', this.data);
 
   return this;
@@ -180,21 +154,17 @@ Truth.prototype.change = function change() {
  * @api public
  */
 Truth.prototype.add = function add() {
-  var changes = []
-    , self = this;
+  var self = this
+    , changes;
 
-  slice.call(arguments).forEach(function each(row) {
-    if (
-         !row
-      || 'object' !== typeof row
-      || ~self.rows.indexOf(row)
-    ) return;
-
-    self.rows.push(row);
-    changes.push(row);
+  changes = this.apply('before', slice.call(arguments)).filter(function each(row) {
+    return row && 'object' === typeof row && !~self.rows.indexOf(row);
   });
 
-  if (changes.length) self.change(changes);
+  if (changes.length) {
+    Array.prototype.push.apply(self.rows, changes);
+    self.change(changes);
+  }
 
   return self;
 };
@@ -236,14 +206,62 @@ Truth.prototype.remove = function remove() {
  * @returns {Truth}
  * @api public
  */
-Truth.prototype.transform = function transform(method, fn, name) {
-  this.transforms.push({
-    name: name || fn.name || fn.displayName,
-    method: method,
-    fn: fn
-  });
+['transform', 'before'].forEach(function generate(when) {
+  Truth.prototype[when] = function transform(method, fn, name) {
+    this.transforms.push({
+      name: name || fn.name || fn.displayName,
+      method: method,
+      when: when,
+      fn: fn,
+    });
 
-  return this.change();
+    return this.change();
+  };
+});
+
+/**
+ * Apply the data transformations to a given array.
+ *
+ * @param {String} when What transformation cycle are we executing.
+ * @param {Array} rows Rows that need to be transformed
+ * @returns {Array}
+ * @api private
+ */
+Truth.prototype.apply = function apply(when, rows) {
+  var transforms = this.transforms.filter(function filter(transform) {
+    return transform.when === when;
+  }), i, j, transform, data;
+
+  //
+  // Bail out early, nothing to apply.
+  //
+  if (!transforms.length) return rows;
+
+  for (i = 0; i < transforms.length; i++) {
+    transform = transforms[i];
+
+    //
+    // Make sure we copy back our hidden row to the mapped result so we need to
+    // implement a custom mapper in order to maintain the correct data
+    // references.
+    //
+    if (transform.method === 'map' && when === 'transform') {
+      for (j = 0; j < rows.length; j++) {
+        data = rows[j];
+
+        rows[j] = transform.fn(rows[j], j, rows);
+        Object.defineProperty(rows[j], this.original, {
+          value: data[this.original],
+          configurable: true,
+          writable: true,
+        });
+      }
+    } else {
+      rows = rows[transform.method](transform.fn);
+    }
+  }
+
+  return rows;
 };
 
 /**

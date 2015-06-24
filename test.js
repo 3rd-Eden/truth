@@ -233,6 +233,22 @@ describe('truth', function () {
     });
   });
 
+  describe('#before', function () {
+    it('can apply filters to data that is about to get added', function () {
+      truth.before('map', function (row) {
+        assume(row).deep.equals({ hello: 'world' });
+
+        return { value: 'row' };
+      });
+
+      truth.add({ hello: 'world' });
+      var row = truth.find('value', 'row');
+
+      assume(row).deep.equals({ value: 'row' });
+      assume(row[truth.original]).equals(row);
+    });
+  });
+
   describe('#undo', function () {
     it('undos an applied filter', function () {
       truth.transform('map', function (row) {
