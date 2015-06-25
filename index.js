@@ -206,7 +206,7 @@ Truth.prototype.remove = function remove() {
  * @returns {Truth}
  * @api public
  */
-['transform', 'before'].forEach(function generate(when) {
+['transform', 'before', 'after'].forEach(function generate(when) {
   Truth.prototype[when] = function transform(method, fn, name) {
     this.transforms.push({
       name: name || fn.name || fn.displayName,
@@ -287,7 +287,7 @@ Truth.prototype.undo = function undo(method, name) {
  * @api public
  */
 Truth.prototype.get = function get() {
-  return this.data.slice(0);
+  return this.apply('after', this.data.slice(0));
 };
 
 /**
