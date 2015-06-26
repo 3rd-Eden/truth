@@ -16,13 +16,15 @@ var id = 0;
 /**
  * A single source of truth.
  *
+ * @param {String} name Name of your truth instance.
  * @constructor
  * @api private
  */
-function Truth() {
-  if (!(this instanceof Truth)) return new Truth();
+function Truth(name) {
+  if (!(this instanceof Truth)) return new Truth(name);
 
   this.original = '_truth' + (id++);
+  this.name = name || this.original;
   this.events = new Ultron(this);
   this.transforms = [];
   this.following = [];
@@ -138,7 +140,6 @@ Truth.prototype.change = function change() {
       else rows.push(data[j]);
     }
   }
-
 
   this.data = this.apply('transform', rows);
   this.emit('change', this.data);
