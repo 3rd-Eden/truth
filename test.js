@@ -294,6 +294,27 @@ describe('truth', function () {
     });
   });
 
+  describe('#clone', function () {
+    it('inherits the transformations', function () {
+      truth.transform('map', function () {
+        return { foo: 'foo' };
+      });
+
+      var clone = truth.clone();
+
+      assume(clone).does.not.equal(truth);
+      assume(clone.length).equals(0);
+      assume(truth.length).equals(0);
+
+      clone.add({ lol: 1 });
+
+      assume(truth.length).equals(0);
+      assume(clone.length).equals(1);
+
+      assume(clone.get()).deep.equals([{ foo: 'foo' }]);
+    });
+  });
+
   describe("#destroy", function () {
     it('triggers a change event if a mounted truth is destoryed');
     it('correctly removes old mounted truths when destoryed');

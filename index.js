@@ -298,6 +298,19 @@ Truth.prototype.get = function get() {
 };
 
 /**
+ * Create a clone of the store so we can easily inherit the transformations.
+ *
+ * @param {String} name Name of the truth store.
+ * @api public
+ */
+Truth.prototype.clone = function clone(name) {
+  var truth = new Truth(name);
+
+  truth.transforms = this.transforms.slice();
+  return truth;
+};
+
+/**
  * Destroy the data source.
  *
  * @returns {Boolean} Successful destruction.
