@@ -28,6 +28,7 @@ function Truth(name) {
   this.events = new Ultron(this);
   this.transforms = [];
   this.following = [];
+  this.length = 0;
   this.data = [];
   this.rows = [];
 }
@@ -164,6 +165,8 @@ Truth.prototype.add = function add() {
 
   if (changes.length) {
     Array.prototype.push.apply(self.rows, changes);
+
+    self.length += changes.length;
     self.change(changes);
   }
 
@@ -193,7 +196,10 @@ Truth.prototype.remove = function remove() {
     changes.push(row);
   });
 
-  if (changes.length) self.change(undefined, changes);
+  if (changes.length) {
+    self.length -= changes.length;
+    self.change(undefined, changes);
+  }
 
   return self;
 };
@@ -306,6 +312,7 @@ Truth.prototype.destroy = function destroy() {
 
   this.emit('destroy');
   this.events.destroy();
+  this.length = 0;
   this.events = this.following = this.transform = this.data = this.rows = null;
 
   return true;

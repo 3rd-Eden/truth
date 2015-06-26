@@ -27,6 +27,19 @@ describe('truth', function () {
       assume(truth.get()[0]).deep.equals({ foo: 'bar' });
     });
 
+    it('increments the length', function () {
+      assume(truth.length).equals(0);
+
+      truth.add({ foo: 'bar'});
+      assume(truth.length).equals(1);
+
+      truth.add({ foo: 'barmaid'}, { foo: 'banana'});
+      assume(truth.length).equals(3);
+
+      truth.add();
+      assume(truth.length).equals(3);
+    });
+
     it('is not affected by modifications of the returned array', function () {
       truth.add({ foo: 'bar' });
 
@@ -62,6 +75,22 @@ describe('truth', function () {
 
       truth.remove(value);
       assume(truth.get().length).equals(0);
+    });
+
+    it('decrements the length', function () {
+      assume(truth.length).equals(0);
+
+      truth.add({ foo: 'barmaid'}, { foo: 'banana'}, { hello: 'world'});
+      assume(truth.length).equals(3);
+
+      truth.remove(truth.find('foo', 'barmaid'));
+      assume(truth.length).equals(2);
+
+      truth.remove.apply(truth, truth.get());
+      assume(truth.length).equals(0);
+
+      truth.remove();
+      assume(truth.length).equals(0);
     });
 
     it('removes multiple rows', function () {
