@@ -110,7 +110,7 @@ Truth.prototype.find = function find(key, value) {
  * @returns {Truth}
  * @api public
  */
-Truth.prototype.change = function change() {
+Truth.prototype.change = function change(removed, added) {
   var rows = this.rows.slice(0)
     , transform
     , data
@@ -143,7 +143,7 @@ Truth.prototype.change = function change() {
   }
 
   this.data = this.apply('transform', rows);
-  this.emit('change', this.data);
+  this.emit('change', removed, added, this.data);
 
   return this;
 };
@@ -152,7 +152,7 @@ Truth.prototype.change = function change() {
  * Add new data to the store.
  *
  * @param {Arguments} arguments
- * @returns {Truth}
+ * @returns {Boolean}
  * @api public
  */
 Truth.prototype.add = function add() {
@@ -168,16 +168,18 @@ Truth.prototype.add = function add() {
 
     self.length += changes.length;
     self.change(changes);
+
+    return true;
   }
 
-  return self;
+  return false;
 };
 
 /**
  * Remove rows from the store.
  *
  * @param {Arguments} arguments
- * @returns {Truth}
+ * @returns {Boolean}
  * @api public
  */
 Truth.prototype.remove = function remove() {
@@ -199,9 +201,11 @@ Truth.prototype.remove = function remove() {
   if (changes.length) {
     self.length -= changes.length;
     self.change(undefined, changes);
+
+    return true;
   }
 
-  return self;
+  return false;
 };
 
 /**
@@ -308,6 +312,22 @@ Truth.prototype.clone = function clone(name) {
 
   truth.transforms = this.transforms.slice();
   return truth;
+};
+
+/**
+ * Empty the whole store, but optionally add new rows as complete replacement.
+ *
+ * @param {Arguments} args arguments.
+ * @api public
+ */
+Truth.prototype.empty = function empty() {
+  this.rows.length = 0;
+  this.data = [];
+
+  if (!this.add.apply(this, arguments)) this.change();
+  this.emit('empty');
+
+  return this;
 };
 
 /**
