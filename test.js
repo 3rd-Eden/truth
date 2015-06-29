@@ -20,7 +20,8 @@ describe('truth', function () {
       assume(truth.get()).is.a('array');
       assume(truth.get().length).equals(0);
 
-      assume(truth.add({ foo: 'bar' })).equals(truth);
+      assume(truth.add({ foo: 'bar' })).equals(true);
+      assume(truth.add()).equals(false);
 
       assume(truth.get()).is.a('array');
       assume(truth.get().length).equals(1);
