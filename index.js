@@ -67,22 +67,14 @@ Truth.prototype.merge = function merge(truth, key) {
     self.change();
   });
 
-  self.following.push({ key: key, ulton: ultron, truth: truth });
-  self.change();
+  self.following.push({
+    name: truth.name,
+    ulton: ultron,
+    truth: truth,
+    key: key
+  });
 
-  return self;
-};
-
-/**
- * Check if a certain key/value exists in our data set.
- *
- * @param {String} key The key or property of the object we should check for
- * @param {Mixed} value Value of the key.
- * @returns {Boolean}
- * @api public
- */
-Truth.prototype.has = function has(key, value) {
-  return !!this.find.apply(this, arguments);
+  return self.change();
 };
 
 /**
@@ -93,13 +85,14 @@ Truth.prototype.has = function has(key, value) {
  * @returns {Object} the found row.
  * @api public
  */
-Truth.prototype.find = function find(key, value) {
-  for (var i = 0, match; i < this.data.length; i++) {
-    match = propget(this.data[i], key);
+Truth.prototype.find = function find(key, value, data) {
+  data = data || this.data;
 
-    if (match) {
-      if (arguments.length === 2 && match !== value) continue;
-      return this.data[i];
+  for (var i = 0, match; i < data.length; i++) {
+    match = propget(data[i], key);
+
+    if (match && match === value) {
+      return data[i];
     }
   }
 };
@@ -137,8 +130,9 @@ Truth.prototype.change = function change(removed, added) {
     data = this.apply('before', transform.truth.get());
 
     for (j = 0; j < data.length; j++) {
-      if (this.has(transform.key, data[j][transform.key])) continue;
-      else rows.push(data[j]);
+      if (this.find(transform.key, data[j][transform.key], this.rows)) {
+        continue;
+      } else rows.push(data[j]);
     }
   }
 
@@ -187,11 +181,11 @@ Truth.prototype.remove = function remove() {
     , self = this;
 
   slice.call(arguments).forEach(function each(row) {
-    var index = self.rows.indexOf(row[self.original] || row);
+    var what = row[self.original] || row
+      , index = self.rows.indexOf(what);
 
     if (!~index) return;
 
-    delete self.data[index][self.original];
     delete row[self.original];
 
     self.rows.splice(index, 1);
