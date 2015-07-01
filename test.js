@@ -15,6 +15,10 @@ describe('truth', function () {
     assume(Truth).is.a('function');
   });
 
+  it('can be initialized without using the `new` keyword', function () {
+    assume(Truth()).is.instanceOf(Truth);
+  });
+
   describe('#add', function () {
     it('adds a new row', function () {
       assume(truth.get()).is.a('array');
@@ -225,6 +229,20 @@ describe('truth', function () {
 
       truth.merge(truth2, 'foo');
     });
+
+    it('removes the store once its destroyed', function () {
+      truth.merge(truth2, 'foo');
+
+      truth2.add({ foo: 'bar' });
+
+      assume(truth.get()[0]).deep.equals({ foo: 'bar' });
+      assume(truth.following).is.length(1);
+
+      truth2.destroy();
+
+      assume(truth.following).is.length(0);
+      assume(truth.get()).deep.equals([]);
+    });
   });
 
   describe('#transform', function () {
@@ -292,6 +310,29 @@ describe('truth', function () {
       truth.undo('map', 'mapsel');
       assume(truth.get().length).equals(2);
       assume(truth.get()).deep.equals([{ foo: 'bar' }, { foo: 'foo' }]);
+    });
+  });
+
+  describe('#empty', function () {
+    it('is removing all of its own rows', function () {
+      truth.add({ foo: 'bar' });
+
+      assume(truth.length).equals(1);
+
+      truth.empty();
+      assume(truth.length).equals(0);
+    });
+
+    it('adds supplied arguments a new rows', function () {
+
+      truth.add({ foo: 'bar' });
+
+      assume(truth.length).equals(1);
+      assume(truth.get()).deep.equals([{ foo: 'bar' }]);
+
+      truth.empty({ bar: 'baz' }, { bar: 'bi' });
+      assume(truth.length).equals(2);
+      assume(truth.get()).deep.equals([{ bar: 'baz' }, { bar: 'bi' }]);
     });
   });
 

@@ -65,7 +65,7 @@ Truth.prototype.merge = function merge(truth, key) {
     ultron.destroy();
 
     self.change();
-  }, self);
+  });
 
   self.following.push({ key: key, ulton: ultron, truth: truth });
   self.change();
@@ -321,7 +321,7 @@ Truth.prototype.clone = function clone(name) {
  * @api public
  */
 Truth.prototype.empty = function empty() {
-  this.rows.length = 0;
+  this.length = this.rows.length = 0;
   this.data = [];
 
   if (!this.add.apply(this, arguments)) this.change();
