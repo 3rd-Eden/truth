@@ -355,7 +355,7 @@ describe('truth', function () {
     });
   });
 
-  describe("#destroy", function () {
+  describe('#destroy', function () {
     it('removes the store once its destroyed', function () {
       truth.merge(truth2, 'foo');
 
@@ -385,6 +385,7 @@ describe('truth', function () {
       truth.merge(truth2, 'foo');
       truth2.add({ foo: 'bar' });
 
+      /* istanbul ignore next */
       truth.once('destroy', function () {
         throw new Error('Fuck, this shouldnt die');
       });
@@ -396,12 +397,40 @@ describe('truth', function () {
       truth2.destroy();
     });
 
+    it('removes the listeners from all following datasets so no more evets are emitted', function (next) {
+      truth.merge(truth2, 'foo');
+
+      truth.once('change', function () {
+        truth.destroy();
+
+        /* istanbul ignore next */
+        truth.once('change', function () {
+          throw new Error('I should NOT be emitted');
+        });
+
+        truth2.add({ foo: 'bar' });
+        next();
+      });
+
+      truth2.add({ foo: 'bar' });
+    });
+
     it('emits a destroy event', function (next) {
       truth.once('destroy', function () {
         next();
       });
 
       truth.destroy();
+    });
+
+    it('only triggers the destroy event once', function (next) {
+      truth.once('destroy', next);
+
+      assume(truth.destroy()).is.true();
+      assume(truth.destroy()).is.false();
+      assume(truth.destroy()).is.false();
+      assume(truth.destroy()).is.false();
+      assume(truth.destroy()).is.false();
     });
   });
 });

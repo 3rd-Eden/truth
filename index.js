@@ -53,23 +53,17 @@ Truth.prototype.merge = function merge(truth, key) {
 
   ultron.on('change', self.change.bind(self));
   ultron.once('destroy', function destroy() {
-    var i = self.following.length;
+    self.following = self.following.filter(function (follow) {
+      return follow.ultron !== ultron;
+    });
 
-    while (i--) {
-      if (self.following[i].ultron === ultron) break;
-    }
-
-    if (!i) return false;
-
-    self.following.splice(i, 1);
     ultron.destroy();
-
     self.change();
   });
 
   self.following.push({
     name: truth.name,
-    ulton: ultron,
+    ultron: ultron,
     truth: truth,
     key: key
   });
