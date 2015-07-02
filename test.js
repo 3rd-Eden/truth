@@ -178,6 +178,18 @@ describe('truth', function () {
       assume(row).is.a('object');
       assume(row.value.foo).equals('bar');
     });
+
+    it('can search the supplied array of data', function () {
+      truth.add({ foo: 'bar', baz: 'baz' });
+
+      var match = truth.find('foo', 'bar', [
+        { foo: 'bar', baz: 'baz', lol: 'cackes'},
+        { foo: 'babi', baz: 'baz', lol: 'cackes'},
+        { foo: 'bambi', baz: 'baz', lol: 'cackes'},
+      ]);
+
+      assume(match).deep.equals({ foo: 'bar', baz: 'baz', lol: 'cackes'});
+    });
   });
 
   describe('#merge', function () {
