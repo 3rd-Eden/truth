@@ -1,5 +1,12 @@
 # truth
 
+[![Version npm][version]](http://browsenpm.org/package/truth)[![Build Status][build]](https://travis-ci.org/3rd-Eden/truth)[![Dependencies][david]](https://david-dm.org/3rd-Eden/truth)[![Coverage Status][cover]](https://coveralls.io/r/3rd-Eden/truth?branch=master)
+
+[version]: https://img.shields.io/npm/v/truth.svg?style=flat-square
+[build]: https://img.shields.io/travis/3rd-Eden/truth/master.svg?style=flat-square
+[david]: https://img.shields.io/david/3rd-Eden/truth.svg?style=flat-square
+[cover]: https://img.shields.io/coveralls/3rd-Eden/truth/master.svg?style=flat-square
+
 Truth allows you to merge different sets of data in to one single source of
 truth. The data can be manipulated from one central point in your application
 leading to a better separation of concerns and maintainability of the project.
