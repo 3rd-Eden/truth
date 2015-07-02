@@ -241,20 +241,6 @@ describe('truth', function () {
 
       truth.merge(truth2, 'foo');
     });
-
-    it('removes the store once its destroyed', function () {
-      truth.merge(truth2, 'foo');
-
-      truth2.add({ foo: 'bar' });
-
-      assume(truth.get()[0]).deep.equals({ foo: 'bar' });
-      assume(truth.following).is.length(1);
-
-      truth2.destroy();
-
-      assume(truth.following).is.length(0);
-      assume(truth.get()).deep.equals([]);
-    });
   });
 
   describe('#transform', function () {
@@ -370,9 +356,52 @@ describe('truth', function () {
   });
 
   describe("#destroy", function () {
-    it('triggers a change event if a mounted truth is destoryed');
-    it('correctly removes old mounted truths when destoryed');
-    it('only destroys it self when calling destroy');
-    it('emits a destroy event');
+    it('removes the store once its destroyed', function () {
+      truth.merge(truth2, 'foo');
+
+      truth2.add({ foo: 'bar' });
+
+      assume(truth.get()[0]).deep.equals({ foo: 'bar' });
+      assume(truth.following).is.length(1);
+
+      truth2.destroy();
+
+      assume(truth.following).is.length(0);
+      assume(truth.get()).deep.equals([]);
+    });
+
+    it('triggers a change event if a mounted truth is destoryed', function (next) {
+      truth.merge(truth2, 'foo');
+      truth2.add({ foo: 'bar' });
+
+      truth.once('change', function () {
+        next();
+      });
+
+      truth2.destroy();
+    });
+
+    it('only destroys it self when calling destroy', function (next) {
+      truth.merge(truth2, 'foo');
+      truth2.add({ foo: 'bar' });
+
+      truth.once('destroy', function () {
+        throw new Error('Fuck, this shouldnt die');
+      });
+
+      truth.once('change', function () {
+        setTimeout(next, 100);
+      });
+
+      truth2.destroy();
+    });
+
+    it('emits a destroy event', function (next) {
+      truth.once('destroy', function () {
+        next();
+      });
+
+      truth.destroy();
+    });
   });
 });
