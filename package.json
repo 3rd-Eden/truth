@@ -1,6 +1,6 @@
 {
   "name": "truth",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "The only data store that tells the truth about your current state.",
   "main": "index.js",
   "scripts": {
