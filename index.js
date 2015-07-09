@@ -298,13 +298,14 @@ Truth.prototype.get = function get() {
  * Create a clone of the store so we can easily inherit the transformations.
  *
  * @param {String} name Name of the truth store.
- * @param {Object} options Optional configuration.
  * @api public
  */
-Truth.prototype.clone = function clone(name, options) {
-  var truth = new Truth(name, options);
+Truth.prototype.clone = function clone(name) {
+  var truth = new Truth(name);
 
   truth.transforms = this.transforms.slice();
+  truth.unique = this.unique;
+
   return truth;
 };
 

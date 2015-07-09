@@ -393,6 +393,14 @@ describe('truth', function () {
 
       assume(clone.get()).deep.equals([{ foo: 'foo' }]);
     });
+
+    it('inherits options like unique key', function () {
+      var optional = new Truth('test', { key: 'test' })
+        , clone = optional.clone('cloned');
+
+      assume(clone.unique).to.be.a('string');
+      assume(clone.unique).to.equal(optional.unique);
+    });
   });
 
   describe('#destroy', function () {
