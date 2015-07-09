@@ -86,6 +86,29 @@ describe('truth', function () {
       truth.add({ foo: 'bar' });
       assume(truth.length).equals(1);
     });
+
+    it('de-dupes mapped values', function () {
+      truth.before('map', function (what) {
+        return {
+          foo: what.bar
+        };
+      });
+
+      truth.add({ bar: 'bar' });
+      truth.add({ bar: 'bar' });
+
+      assume(truth.length).equals(1);
+
+      truth.once('change', function () {
+        throw new Error('I should not trigger, there is no change');
+      });
+
+      truth.add({ bar: 'bar' });
+      assume(truth.length).equals(1);
+
+      truth.add({ bar: 'bar' });
+      assume(truth.length).equals(1);
+    });
   });
 
   describe('#remove', function () {
