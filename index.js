@@ -183,6 +183,7 @@ Truth.prototype.remove = function remove() {
     var what = row[self.original] || row
       , index = self.rows.indexOf(what);
 
+    if (!~index) index = self.rows.indexOf(self.find(self.unique, what[self.unique]));
     if (!~index) return;
 
     delete row[self.original];
@@ -304,6 +305,8 @@ Truth.prototype.clone = function clone(name) {
   var truth = new Truth(name);
 
   truth.transforms = this.transforms.slice();
+  truth.unique = this.unique;
+
   return truth;
 };
 
