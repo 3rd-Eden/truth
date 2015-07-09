@@ -418,6 +418,15 @@ describe('truth', function () {
       assume(clone.unique).to.be.a('string');
       assume(clone.unique).to.equal(optional.unique);
     });
+
+    it('does not inherit cloned key if passed through options', function () {
+      var optional = new Truth('test', { key: 'test' })
+        , clone = optional.clone('cloned', { key: 'bar' });
+
+      assume(clone.unique).to.not.equal(optional.unique);
+      assume(clone.unique).to.be.a('string');
+      assume(clone.unique).to.equal('bar');
+    });
   });
 
   describe('#destroy', function () {

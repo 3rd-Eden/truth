@@ -306,7 +306,7 @@ Truth.prototype.clone = function clone(name, options) {
   var truth = new Truth(name, options || {});
 
   truth.transforms = this.transforms.slice();
-  truth.unique = this.unique;
+  truth.unique = truth.unique || this.unique;
 
   return truth;
 };
