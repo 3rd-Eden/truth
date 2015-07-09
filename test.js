@@ -281,6 +281,23 @@ describe('truth', function () {
 
       truth.merge(truth2, 'foo');
     });
+
+    it('can default to the key option for row merges', function (next) {
+      truth.add({ foo: 'foo' });
+
+      truth.once('change', function () {
+        truth.once('change', function () {
+          assume(truth2.get()).deep.equals([{ foo: 'bar' }]);
+          assume(truth.get()).deep.equals([{ foo: 'foo' }, { foo: 'bar' }]);
+
+          next();
+        });
+
+        truth2.add({ foo: 'bar' });
+      });
+
+      truth.merge(truth2);
+    });
   });
 
   describe('#transform', function () {

@@ -65,10 +65,10 @@ Truth.prototype.merge = function merge(truth, key) {
   });
 
   self.following.push({
+    key: key || self.unique,
     name: truth.name,
     ultron: ultron,
-    truth: truth,
-    key: key
+    truth: truth
   });
 
   return self.change();
@@ -299,10 +299,11 @@ Truth.prototype.get = function get() {
  * Create a clone of the store so we can easily inherit the transformations.
  *
  * @param {String} name Name of the truth store.
+ * @param {Object} options Optional configuration.
  * @api public
  */
-Truth.prototype.clone = function clone(name) {
-  var truth = new Truth(name);
+Truth.prototype.clone = function clone(name, options) {
+  var truth = new Truth(name, options || {});
 
   truth.transforms = this.transforms.slice();
   truth.unique = this.unique;
