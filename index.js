@@ -17,15 +17,18 @@ var id = 0;
  * A single source of truth.
  *
  * @param {String} name Name of your truth instance.
+ * @param {Object} options Optional configuration.
  * @constructor
  * @api private
  */
-function Truth(name) {
-  if (!(this instanceof Truth)) return new Truth(name);
+function Truth(name, options) {
+  if (!(this instanceof Truth)) return new Truth(name, options);
+  options = options || {};
 
   this.original = '_truth' + (id++);
   this.name = name || this.original;
   this.events = new Ultron(this);
+  this.unique = options.key;
   this.transforms = [];
   this.following = [];
   this.length = 0;
@@ -148,7 +151,9 @@ Truth.prototype.add = function add() {
     , changes;
 
   changes = this.apply('before', slice.call(arguments)).filter(function each(row) {
-    return row && 'object' === typeof row && !~self.rows.indexOf(row);
+    return row
+      && 'object' === typeof row
+      && !self.find(self.unique, row[self.unique]);
   });
 
   if (changes.length) {

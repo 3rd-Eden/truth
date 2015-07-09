@@ -7,8 +7,8 @@ describe('truth', function () {
     , assume = require('assume');
 
   beforeEach(function () {
-    truth2 = new Truth();
-    truth = new Truth();
+    truth2 = new Truth('truth2', { key: 'foo' });
+    truth = new Truth('truth', { key: 'foo' });
   });
 
   it('is exported as function', function () {
@@ -68,6 +68,23 @@ describe('truth', function () {
       });
 
       truth.add({ foo: 'bar' }, { bar: 'foo' });
+    });
+
+    it('does not add duplicates', function () {
+      truth.add({ foo: 'bar' });
+      truth.add({ foo: 'bar' });
+
+      assume(truth.length).equals(1);
+
+      truth.once('change', function () {
+        throw new Error('I should not trigger, there is no change');
+      });
+
+      truth.add({ foo: 'bar' });
+      assume(truth.length).equals(1);
+
+      truth.add({ foo: 'bar' });
+      assume(truth.length).equals(1);
     });
   });
 
