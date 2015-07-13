@@ -302,7 +302,6 @@ describe('truth', function () {
     it('accepts a custom filter function', function () {
       truth.add({ foo: 'foo' });
 
-
       truth.merge(truth2, function (row, rows) {
         assume(rows).is.a('array');
         assume(rows[0]).deep.equals({ foo: 'foo' });
