@@ -298,6 +298,25 @@ describe('truth', function () {
 
       truth.merge(truth2);
     });
+
+    it('accepts a custom filter function', function () {
+      truth.add({ foo: 'foo' });
+
+
+      truth.merge(truth2, function (row, rows) {
+        assume(rows).is.a('array');
+        assume(rows[0]).deep.equals({ foo: 'foo' });
+
+        assume(row).is.a('object');
+        assume(row.banana).is.true();
+
+        return false;
+      });
+
+      truth2.add({ foo: 'bar', banana: true });
+
+      assume(truth.get().length).equals(2);
+    });
   });
 
   describe('#transform', function () {

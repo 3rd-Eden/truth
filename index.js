@@ -47,12 +47,21 @@ Truth.prototype.constructor = Truth;
  *
  * @param {Truth} truth A truth store we need to merge data with.
  * @param {String} key We should match against.
+ * @param {Function} fn Additional exclusion/inclusion filter for rows.
  * @returns {Truth}
  * @api public
  */
-Truth.prototype.merge = function merge(truth, key) {
+Truth.prototype.merge = function merge(truth, key, fn) {
   var ultron = new Ultron(truth)
     , self = this;
+
+  //
+  // Allow the key and function to be optional.
+  //
+  if (!fn && 'function' === typeof key) {
+    fn = key;
+    key = null;
+  }
 
   ultron.on('change', self.change.bind(self));
   ultron.once('destroy', function destroy() {
@@ -68,7 +77,8 @@ Truth.prototype.merge = function merge(truth, key) {
     key: key || self.unique,
     name: truth.name,
     ultron: ultron,
-    truth: truth
+    truth: truth,
+    exclude: fn
   });
 
   return self.change();
@@ -102,7 +112,9 @@ Truth.prototype.find = function find(key, value, data) {
  */
 Truth.prototype.change = function change(removed, added) {
   var rows = this.rows.slice(0)
+    , self = this
     , transform
+    , exclude
     , data
     , j
     , i;
@@ -111,7 +123,7 @@ Truth.prototype.change = function change(removed, added) {
   // Make sure we have our unique row id assigned
   //
   for (i = 0; i < rows.length; i++) {
-    Object.defineProperty(rows[i], this.original, {
+    Object.defineProperty(rows[i], self.original, {
       configurable: true,
       writable: true,
       value: rows[i]
@@ -122,21 +134,23 @@ Truth.prototype.change = function change(removed, added) {
   // Merge all additional data structures so we can generate once big source of
   // truth for this given instance.
   //
-  for (i = 0; i < this.following.length; i++) {
-    transform = this.following[i];
-    data = this.apply('before', transform.truth.get());
+  for (i = 0; i < self.following.length; i++) {
+    transform = self.following[i];
+    data = self.apply('before', transform.truth.get());
 
     for (j = 0; j < data.length; j++) {
-      if (this.find(transform.key, data[j][transform.key], this.rows)) {
-        continue;
-      } else rows.push(data[j]);
+      if (transform.exclude) exclude = transform.exclude(data[j], rows);
+      else exclude = self.find(transform.key, data[j][transform.key], rows);
+
+      if (exclude) continue;
+      else rows.push(data[j]);
     }
   }
 
-  this.data = this.apply('transform', rows);
-  this.emit('change', removed, added, this.data);
+  self.data = self.apply('transform', rows);
+  self.emit('change', removed, added, self.data);
 
-  return this;
+  return self;
 };
 
 /**
