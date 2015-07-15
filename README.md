@@ -36,7 +36,16 @@ var Truth = require('truth')
   , truth = new Truth();
 ```
 
-Now that we've constructed our first `truth` store we can look at the various of
+While it's certainly possible to create `truth` instances without any arguments,
+there are a couple of arguments that can be set:
+
+1. The first argument can be a string with the name of the store. This will be
+   used when merging stores and can be useful for debugging purposes.
+2. Configuration object where you can set:
+  - `key` The name of the key that should be used to determine duplicates when
+    merging truth instances.
+
+Now that we've constructed our first `truth` instance we can look at the various of
 API methods that are available:
 
 #### truth.add
