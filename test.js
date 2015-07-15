@@ -121,6 +121,9 @@ describe('truth', function () {
 
       assume(truth.get()[0]).deep.equals({foo: 'bar', bar: 'banana' });
       assume(truth.get()).has.length(1);
+
+      assume(truth2.get()[0]).deep.equals({foo: 'bar' });
+      assume(truth2.get()).has.length(1);
     });
   });
 
