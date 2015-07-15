@@ -109,6 +109,19 @@ describe('truth', function () {
       truth.add({ bar: 'bar' });
       assume(truth.length).equals(1);
     });
+
+    it('adds a row even when a merged dataset contains this exact row', function () {
+      truth.merge(truth2, 'foo');
+      truth2.add({ foo: 'bar' });
+
+      assume(truth.get()[0]).deep.equals({foo: 'bar' });
+      assume(truth.get()).has.length(1);
+
+      truth.add({ foo: 'bar', bar: 'banana' });
+
+      assume(truth.get()[0]).deep.equals({foo: 'bar', bar: 'banana' });
+      assume(truth.get()).has.length(1);
+    });
   });
 
   describe('#remove', function () {

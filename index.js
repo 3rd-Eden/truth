@@ -167,7 +167,7 @@ Truth.prototype.add = function add() {
   changes = this.apply('before', slice.call(arguments)).filter(function each(row) {
     return row
       && 'object' === typeof row
-      && !self.find(self.unique, row[self.unique]);
+      && !self.find(self.unique, row[self.unique], self.rows);
   });
 
   if (changes.length) {
