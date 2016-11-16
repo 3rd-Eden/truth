@@ -16,14 +16,14 @@
   "author": "Arnout Kazemier",
   "license": "MIT",
   "dependencies": {
-    "eventemitter3": "1.1.x",
+    "eventemitter3": "~2.0.2",
     "propget": "1.0.x",
     "ultron": "1.0.x"
   },
   "devDependencies": {
-    "assume": "1.2.x",
-    "istanbul": "0.3.x",
-    "mocha": "2.2.x",
-    "pre-commit": "1.0.x"
+    "assume": "~1.4.1",
+    "istanbul": "~0.4.5",
+    "mocha": "~3.1.2",
+    "pre-commit": "~1.1.3"
   }
 }
